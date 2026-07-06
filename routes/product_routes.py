@@ -1,6 +1,7 @@
 # creating all routes related to products
 from flask import Blueprint,request, jsonify
 from services.product_service import get_all_products
+from services.openfoodfacts_service import get_product_by_barcode
 
 # Ask the service for the products
 products = get_all_products()
@@ -82,3 +83,12 @@ def delete_product(product_id):
     return jsonify({
         "error": "Product not found"
     }),404
+
+@product_bp.route("/barcode/<barcode>",methods=["GET"])
+def fetch_product(barcode):
+    product = get_product_by_barcode(barcode)
+
+    if product is None:
+        return jsonify({"error": "Product not found"}),404
+    
+    return jsonify(product),200
