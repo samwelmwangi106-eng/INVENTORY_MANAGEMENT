@@ -2,6 +2,7 @@
 from flask import Blueprint,request, jsonify
 from services.product_service import get_all_products
 from services.openfoodfacts_service import get_product_by_barcode
+from services.product_service import (get_all_products,add_product,update_product,delete_product)
 
 # Ask the service for the products
 products = get_all_products()
@@ -14,75 +15,67 @@ product_bp = Blueprint("products",__name__)
 ## return every product in our inventory
 @product_bp.route("/products",methods=["GET"])
 def get_products():
-    # Return the current product list as json
-    return jsonify(products)
+    #Ask the service for all products
+    products = get_all_products()
 
+    # Return the products as json
+    return jsonify(products)
+    
 
 # Add (POST) new products
 @product_bp.route("/products",methods=["POST"])
-def add_product():
+def create_product():
     # read the json data sent by the client
     product_data = request.get_json()
 
-    # create a new product dictionary
-    new_product = {
-        "id":len(products) + 1,
-        "name": product_data["name"],
-        "category":product_data["category"],
-        "price":product_data["price"],
-        "quantity": product_data["quantity"]
-    }
-    # Add new product
-    products.append(new_product)
+    #Ask the service to save the product
+    new_product = add_product(product_data)
 
-    # Return the new product with status code 201 (Created)
-    return jsonify(new_product), 201
+    # Return the newly created data
+    return jsonify(new_product),201
+
+   
 
 # Update(PUT) a product
 # updating an existing product
 @product_bp.route("/products/<int:product_id>",  methods=["PUT"])
-def update_product(product_id):
+def edit_product(product_id):
     # READ(request) the updated product data
     updated_data = request.get_json()
 
-    #search for the product
-    for product in products:
-        # checking if the product we want
-        if product["id"] == product_id:
+    # Ask the service to update the product
+    product = update_product(product_id, updated_data)
 
-            # update each field
-            product["name"] = updated_data["name"]
-            product["category"] = updated_data["category"]
-            product["price"] = updated_data["price"]
-            product["quantity"] = updated_data["quantity"]
+    # If found, return the updated product
+    if product:
+        return jsonify(product), 200
 
-            # return the updated product
-            return jsonify(product), 200
-        
-    # if no product is found
-    return jsonify({"error":"Product not found"}), 404
+    # Otherwise return an error
+    return jsonify({
+        "error": "Product not found"
+    }), 404
 
+   
 # deleting(DELETE) a product
 # removing it from our inventory using its id.
 @product_bp.route("/products/<int:product_id>",methods=["DELETE"])
-def delete_product(product_id):
+def remove_product(product_id):
 
-    # loop through all products
-    for product in products:
-        # check if this is the product we want to delete
-        if product["id"] == product_id:
-            # remove it from the list
-            products.remove(product)
+    # Ask the service to delete the product
+    deleted = delete_product(product_id)
 
-        # returning a success message
+    # If successful
+    if deleted:
         return jsonify({
-            "message":"Product deleted succesfully"
+            "message": "Product deleted successfully"
         }), 200
-    
-    # if our product never exist
+
+    # Otherwise
     return jsonify({
         "error": "Product not found"
-    }),404
+    }), 404
+
+    
 
 @product_bp.route("/barcode/<barcode>",methods=["GET"])
 def fetch_product(barcode):

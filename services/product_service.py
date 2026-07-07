@@ -1,22 +1,147 @@
-# contains the business logic 
-# Temporary inventory
-products = [
-    {
-        "id": 1,
-        "name": "Laptop",
-        "category": "Electronics",
-        "price": 75000,
-        "quantity": 10
-    },
-    {
-        "id": 2,
-        "name": "Mouse",
-        "category": "Accessories",
-        "price": 1500,
-        "quantity": 25
-    }
-]
+# Contains the business logic for managing products.
+# This service communicates with the database service
+# to read from and write to the db.json file.
 
+from services.database_service import load_database, save_database
+
+
+# Validate product information before saving it.
+def validate_product(product):
+
+    # Product name is required.
+    # strip() removes spaces so that "   " is treated as empty.
+    if not product.get("name", "").strip():
+        return "Product name is required."
+
+    # Product category is required.
+    if not product.get("category", "").strip():
+        return "Product category is required."
+
+    # Product price is required.
+    if "price" not in product:
+        return "Product price is required."
+
+    # Product quantity is required.
+    if "quantity" not in product:
+        return "Product quantity is required."
+
+    # Price must be either an integer or a decimal number.
+    if not isinstance(product["price"], (int, float)):
+        return "Price must be a number."
+
+    # Quantity must be a whole number.
+    if not isinstance(product["quantity"], int):
+        return "Quantity must be an integer."
+
+    # Price cannot be negative.
+    if product["price"] < 0:
+        return "Price cannot be negative."
+
+    # Quantity cannot be negative.
+    if product["quantity"] < 0:
+        return "Quantity cannot be negative."
+
+    # Everything is valid.
+    return None
+
+
+# Retrieve every product stored in the database.
 def get_all_products():
-    #returns all products in the inventory
-    return products
+
+    # Load the entire database from db.json.
+    database = load_database()
+
+    # Return only the list of products.
+    return database["products"]
+
+
+# Add a new product to the database.
+def add_product(product):
+
+    # Validate the product information.
+    error = validate_product(product)
+
+    # If validation fails, return the error.
+    if error:
+        return {"error": error}
+
+    # Load the current database.
+    database = load_database()
+
+    # Get the current list of products.
+    products = database["products"]
+
+    # Generate the next available product ID.
+    if products:
+        next_id = max(product["id"] for product in products) + 1
+    else:
+        next_id = 1
+
+    # Assign the generated ID to the new product.
+    product["id"] = next_id
+
+    # Add the new product to the products list.
+    database["products"].append(product)
+
+    # Save the updated database.
+    save_database(database)
+
+    # Return the newly created product.
+    return product
+
+
+# Update an existing product using its ID.
+def update_product(product_id, updated_product):
+
+    # Validate the updated product information.
+    error = validate_product(updated_product)
+
+    # If validation fails, return the error.
+    if error:
+        return {"error": error}
+
+    # Load the current database.
+    database = load_database()
+
+    # Search through every product.
+    for product in database["products"]:
+
+        # Check whether this is the product we want.
+        if product["id"] == product_id:
+
+            # Update the product with the new information.
+            product.update(updated_product)
+
+            # Save the updated database.
+            save_database(database)
+
+            # Return the updated product.
+            return product
+
+    # Return None if the product does not exist.
+    return None
+
+
+# Delete a product from the database using its ID.
+def delete_product(product_id):
+
+    # Load the current database.
+    database = load_database()
+
+    # Search through every product.
+    for product in database["products"]:
+
+        # Check whether this is the product we want.
+        if product["id"] == product_id:
+
+            # Remove the product from the products list.
+            database["products"].remove(product)
+
+            # Save the updated database.
+            save_database(database)
+
+            # Indicate that deletion was successful.
+            return True
+
+    # Return False if the product was not found.
+    return False
