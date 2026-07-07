@@ -3,6 +3,7 @@
 # to read from and write to the db.json file.
 
 from services.database_service import load_database, save_database
+from services.openfoodfacts_service import get_product_by_barcode
 
 
 # Validate product information before saving it.
@@ -145,3 +146,23 @@ def delete_product(product_id):
 
     # Return False if the product was not found.
     return False
+# Add a product to the inventory using its barcode.
+def add_product_by_barcode(barcode):
+
+    # Ask the Open Food Facts service for product information.
+    product = get_product_by_barcode(barcode)
+
+    # If no product was found, return an error.
+    if product is None:
+        return {"error": "Product not found."}
+
+    # Create a product dictionary using the information from the API.
+    new_product = {
+        "name": product.get("product_name", "Unknown Product"),
+        "category": product.get("categories", "Unknown Category"),
+        "price": 0.0,      # Default price
+        "quantity": 0       # Default quantity
+    }
+
+    # Save the product into db.json.
+    return add_product(new_product)
