@@ -1,1 +1,18 @@
-{"products": [{"id": 1, "name": "Test Product", "category": "Testing", "price": 100, "quantity": 5}, {"name": "Milk", "category": "Dairy", "price": 120, "quantity": 8, "id": 2}]}
+{
+    "products": [
+        {
+            "id": 1,
+            "name": "Test Product",
+            "category": "Testing",
+            "price": 100,
+            "quantity": 5
+        },
+        {
+            "name": "Milk",
+            "category": "Dairy",
+            "price": 120,
+            "quantity": 8,
+            "id": 2
+        }
+    ]
+}
