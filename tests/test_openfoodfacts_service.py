@@ -1,5 +1,8 @@
 # Tests for the Open Food Facts service.
+import sys
+import os
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from services.openfoodfacts_service import get_product_by_barcode
 
 

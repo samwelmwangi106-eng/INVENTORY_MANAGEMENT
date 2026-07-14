@@ -8,7 +8,8 @@ from services.product_service import (
     add_product,
     update_product,
     delete_product,
-    add_product_by_barcode
+    add_product_by_barcode,
+    search_product_by_name
 )
 
 
@@ -146,9 +147,10 @@ def menu():
 1. View Products
 2. Add Product
 3. Add Product by Barcode
-4. Update Product
-5. Delete Product
-6. Exit
+4. Search products
+5. Update Product
+6. Delete Product
+7. Exit
 ==================================
 """)
 
@@ -165,17 +167,47 @@ def menu():
             create_product_by_barcode()
 
         elif choice == "4":
-            edit_product()
+            search_product()
 
         elif choice == "5":
-            remove_product()
+            edit_product()
 
         elif choice == "6":
-            print("\nThank you for using Inventory Management System.")
+            remove_product()
+
+        elif choice == "7":
+            print("Goodbye!")
             break
 
         else:
-            print("\nInvalid option. Please try again.")
+            print("Invalid choice.")
+
+# Search for a product by its name.
+def search_product():
+
+    print("\n===== SEARCH PRODUCT =====")
+
+    # Ask the user for the product name.
+    name = input("Enter product name: ")
+
+    # Search the database.
+    products = search_product_by_name(name)
+
+    # If nothing is found.
+    if not products:
+        print("\nNo products found.")
+        return
+
+    print("\n========== SEARCH RESULTS ==========")
+
+    # Display every matching product.
+    for product in products:
+        print(f"\nID: {product['id']}")
+        print(f"Name: {product['name']}")
+        print(f"Category: {product['category']}")
+        print(f"Price: {product['price']}")
+        print(f"Quantity: {product['quantity']}")
+        print("-----------------------------")
 
 
 # Start the program.

@@ -166,3 +166,22 @@ def add_product_by_barcode(barcode):
 
     # Save the product into db.json.
     return add_product(new_product)
+
+# Search for products by name.
+def search_product_by_name(name):
+
+    # Load the database.
+    database = load_database()
+
+    # Store matching products.
+    results = []
+
+    # Check every product.
+    for product in database["products"]:
+
+        # Compare names without considering uppercase/lowercase.
+        if name.lower() in product["name"].lower():
+            results.append(product)
+
+    # Return all matching products.
+    return results

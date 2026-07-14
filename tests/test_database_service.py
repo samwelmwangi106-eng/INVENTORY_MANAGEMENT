@@ -1,6 +1,8 @@
 # Test for the database
+import sys
 import os
-import json
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from services.database_service import load_database, save_database
 
 #Test that the database can be loaded
